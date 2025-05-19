@@ -6,17 +6,20 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 const (
 	screenWidth  = 640
 	screenHeight = 480
 	successMargin = 0.10 // 10% margin for success
+	fontSize = 24
 )
 
 var barSpeed = 2.0 // Make it a float to avoid type issues later
@@ -29,6 +32,7 @@ type Game struct {
 	gameState   GameState
 	clickHandled bool // Flag to prevent multiple clicks in one frame
 	lives       int
+	fontFace *text.GoTextFace
 }
 
 type GameState int
@@ -185,18 +189,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	// Display score and game state
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("Score: %d\nLives: %d\n", g.score, g.lives))
+	stateText := fmt.Sprintf("Score: %d\nLives: %d\n", g.score, g.lives)
+	textop := &text.DrawOptions{}
+	textop.LineSpacing = fontSize * 1.5
 
 	switch g.gameState {
 	case GameStatePlaying:
-		ebitenutil.DebugPrint(screen, "State: Playing\n")
+		stateText += "State: Playing\n"
 	case GameStateResult:
-		if g.lives <= 0 {
-			ebitenutil.DebugPrint(screen, "State: Game Over\nClick to restart")
-		} else {
-			ebitenutil.DebugPrint(screen, "State: Result\nClick to restart")
-		}
+			stateText += "State: Game Over\nClick to restart"
 	}
+
+	text.Draw(screen, stateText, g.fontFace, textop)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -223,7 +227,20 @@ func main() {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Half Slice Game")
 
-	game := &Game{}
+	f, err := os.Open("font/Roboto-Medium.ttf")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	src, err := text.NewGoTextFaceSource(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	game := &Game{
+		fontFace: &text.GoTextFace{Source: src, Size: fontSize},
+	}
 	game.Init()
 
 	if err := ebiten.RunGame(game); err != nil {
