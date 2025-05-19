@@ -28,6 +28,7 @@ type Game struct {
 	rand        *rand.Rand
 	gameState   GameState
 	clickHandled bool // Flag to prevent multiple clicks in one frame
+	lives       int
 }
 
 type GameState int
@@ -80,6 +81,7 @@ func (g *Game) Init() {
 	g.score = 0
 	g.gameState = GameStatePlaying
 	g.clickHandled = false
+	g.lives = 3 // Initial number of lives
 }
 
 func (g *Game) Update() error {
@@ -114,6 +116,12 @@ func (g *Game) Update() error {
 			} else {
 				// Failure
 				fmt.Println("Failure!")
+				g.lives-- // Decrement lives on failure
+				if g.lives <= 0 {
+					g.gameState = GameStateResult // Game over if no lives left
+				} else {
+					g.gameState = GameStateResult
+				}
 			}
 			g.gameState = GameStateResult
 		}
@@ -144,13 +152,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	// Display score and game state
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("Score: %d\n", g.score))
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("Score: %d\nLives: %d\n", g.score, g.lives))
 
 	switch g.gameState {
 	case GameStatePlaying:
 		ebitenutil.DebugPrint(screen, "State: Playing\n")
 	case GameStateResult:
-		ebitenutil.DebugPrint(screen, "State: Result\nClick to restart")
+		if g.lives <= 0 {
+			ebitenutil.DebugPrint(screen, "State: Game Over\nClick to restart")
+		} else {
+			ebitenutil.DebugPrint(screen, "State: Result\nClick to restart")
+		}
 	}
 }
 
