@@ -225,7 +225,7 @@ func (g *Game) calculateAreas() (float64, float64) {
 
 func main() {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
-	ebiten.SetWindowTitle("Half Slice Game")
+	ebiten.SetWindowTitle("Balance Blade")
 
 	f, err := os.Open("font/Roboto-Medium.ttf")
 	if err != nil {

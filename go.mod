@@ -1,4 +1,4 @@
-module harf-slice
+module github.com/sumomo-99/BalanceBlade
 
 go 1.24.3
 
