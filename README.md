@@ -1,6 +1,8 @@
-# ハーフスライスゲーム
+# Balance Blade
 
 画面に表示された図形を半分の面積に分けるゲームです。
+
+The written content was primarily written using AI-based system (Gemini-2.0-flash).
 
 ## 基本ルール
 
