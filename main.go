@@ -82,6 +82,33 @@ func (g *Game) Init() {
 	g.gameState = GameStatePlaying
 	g.clickHandled = false
 	g.lives = 3 // Initial number of lives
+	g.InitLevel()
+}
+
+func (g *Game) InitLevel() {
+	// Initialize shape (rectangle)
+	shapeWidth := 100 + g.rand.Intn(150) // Random width between 100 and 250
+	shapeHeight := 100 + g.rand.Intn(150) // Random height between 100 and 250
+	g.shape = Shape{
+		x:      screenWidth/2 - shapeWidth/2,
+		y:      screenHeight/2 - shapeHeight/2,
+		width:  shapeWidth,
+		height: shapeHeight,
+		area:   float64(shapeWidth * shapeHeight),
+	}
+
+	// Determine bar orientation (vertical or horizontal) randomly
+	vertical := g.rand.Float64() < 0.5
+	g.bar = Bar{
+		vertical: vertical,
+	}
+
+	// Initialize bar position
+	if vertical {
+		g.bar.position = g.shape.x
+	} else {
+		g.bar.position = g.shape.y
+	}
 }
 
 func (g *Game) Update() error {
@@ -130,9 +157,15 @@ func (g *Game) Update() error {
 		}
 
 	case GameStateResult:
-		// Wait for click to restart
-		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-			g.Init() // Restart the game
+		if g.lives <= 0 {
+			// Wait for click to restart if game over
+			if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+				g.Init() // Restart the game only if game over
+			}
+		} else {
+			// Automatically proceed to the next stage if lives remain
+			g.InitLevel()
+			g.gameState = GameStatePlaying
 		}
 	}
 
