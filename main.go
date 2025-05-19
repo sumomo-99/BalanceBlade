@@ -16,7 +16,7 @@ import (
 const (
 	screenWidth  = 640
 	screenHeight = 480
-	barSpeed     = 2
+	barSpeed     = 2.0 // Make it a float to avoid type issues later
 	successMargin = 0.10 // 10% margin for success
 )
 
@@ -86,12 +86,12 @@ func (g *Game) Update() error {
 	case GameStatePlaying:
 		// Move the bar
 		if g.bar.vertical {
-			g.bar.position += barSpeed
+			g.bar.position += int(barSpeed)
 			if g.bar.position > g.shape.x+g.shape.width || g.bar.position < g.shape.x {
 				barSpeed *= -1
 			}
 		} else {
-			g.bar.position += barSpeed
+			g.bar.position += int(barSpeed)
 			if g.bar.position > g.shape.y+g.shape.height || g.bar.position < g.shape.y {
 				barSpeed *= -1
 			}
