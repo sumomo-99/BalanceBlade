@@ -34,6 +34,7 @@ type Game struct {
 	clickHandled bool // Flag to prevent multiple clicks in one frame
 	lives        int
 	fontFace     *text.GoTextFace
+	areaRatio    float64 // To store the calculated area ratio
 }
 
 type GameState int
@@ -171,23 +172,29 @@ func (g *Game) Update() error {
 					g.gameState = GameStateResult
 				}
 			}
-			g.gameState = GameStateResult
+			// Calculate area ratio
+			if area1+area2 != 0 {
+				g.areaRatio = math.Min(area1, area2) / math.Max(area1, area2)
+			} else {
+				g.areaRatio = 0 // Avoid division by zero
+			}
+			g.gameState = GameStateResult // Transition to result state
 		}
 		if !inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 			g.clickHandled = false
 		}
 
 	case GameStateResult:
-		if g.lives <= 0 {
-			// Wait for click to restart if game over
-			if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		// Wait for click to proceed
+		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+			if g.lives <= 0 {
 				g.Init() // Restart the game only if game over
+			} else {
+				// Automatically proceed to the next stage if lives remain
+				g.stageIndex++
+				g.InitLevel()
+				g.gameState = GameStatePlaying
 			}
-		} else {
-			// Automatically proceed to the next stage if lives remain
-			g.stageIndex++
-			g.InitLevel()
-			g.gameState = GameStatePlaying
 		}
 	}
 
@@ -233,7 +240,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case GameStatePlaying:
 		stateText += "State: Playing\n"
 	case GameStateResult:
-		stateText += "State: Game Over\nClick to restart"
+		if g.lives <= 0 {
+			stateText += "State: Game Over\nClick to restart"
+		} else {
+			stateText += fmt.Sprintf("Area Ratio: %.2f\nClick to continue", g.areaRatio)
+		}
 	}
 
 	text.Draw(screen, stateText, g.fontFace, textop)
