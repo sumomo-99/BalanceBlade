@@ -56,6 +56,8 @@ type ShapeKind int
 
 const (
 	Rectangle ShapeKind = iota
+	Circle
+	Triangle
 )
 
 type Bar struct {
@@ -109,7 +111,7 @@ func (g *Game) InitLevel() {
 		width:  shapeWidth,
 		height: shapeHeight,
 		area:   float64(shapeWidth * shapeHeight),
-		kind:   Rectangle, // Currently only rectangle
+		kind:   Rectangle,
 	}
 
 	g.bar = Bar{
@@ -190,10 +192,28 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	// Draw the shape
-	ebitenutil.DrawRect(screen, float64(g.shape.x), float64(g.shape.y), float64(g.shape.width), float64(g.shape.height), color.White)
+	switch g.shape.kind {
+	case Rectangle:
+		ebitenutil.DrawRect(screen, float64(g.shape.x), float64(g.shape.y), float64(g.shape.width), float64(g.shape.height), color.White)
+	case Circle:
+		ebitenutil.DrawCircle(screen, float64(g.shape.x+g.shape.width/2), float64(g.shape.y+g.shape.height/2), float64(g.shape.width/2), color.White)
+	case Triangle:
+		// Define the vertices of the triangle
+		x1 := float64(g.shape.x + g.shape.width/2)
+		y1 := float64(g.shape.y)
+		x2 := float64(g.shape.x)
+		y2 := float64(g.shape.y + g.shape.height)
+		x3 := float64(g.shape.x + g.shape.width)
+		y3 := float64(g.shape.y + g.shape.height)
+
+		// Draw the triangle using ebitenutil.DrawLine
+		ebitenutil.DrawLine(screen, x1, y1, x2, y2, color.White)
+		ebitenutil.DrawLine(screen, x2, y2, x3, y3, color.White)
+		ebitenutil.DrawLine(screen, x3, y3, x1, y1, color.White)
+	}
 
 	// Draw the bar
-	barColor := color.RGBA{255, 0, 0, 255} // Red
+	barColor := color.RGBA{255, 0, 0, 255}
 	if g.bar.vertical {
 		ebitenutil.DrawRect(screen, float64(g.bar.position), float64(g.shape.y), 2, float64(g.shape.height), barColor)
 	} else {
@@ -220,19 +240,67 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func (g *Game) calculateAreas() (float64, float64) {
-	if g.bar.vertical {
-		width1 := g.bar.position - g.shape.x
-		width2 := g.shape.x + g.shape.width - g.bar.position
-		area1 := float64(width1 * g.shape.height)
-		area2 := float64(width2 * g.shape.height)
-		return area1, area2
-	} else {
-		height1 := g.bar.position - g.shape.y
-		height2 := g.shape.y + g.shape.height - g.bar.position
-		area1 := float64(height1 * g.shape.width)
-		area2 := float64(height2 * g.shape.width)
-		return area1, area2
+	switch g.shape.kind {
+	case Rectangle:
+		if g.bar.vertical {
+			width1 := g.bar.position - g.shape.x
+			width2 := g.shape.x + g.shape.width - g.bar.position
+			area1 := float64(width1 * g.shape.height)
+			area2 := float64(width2 * g.shape.height)
+			return area1, area2
+		} else {
+			height1 := g.bar.position - g.shape.y
+			height2 := g.shape.y + g.shape.height - g.bar.position
+			area1 := float64(height1 * g.shape.width)
+			area2 := float64(height2 * g.shape.width)
+			return area1, area2
+		}
+	case Circle:
+		// Approximate circle area division (more complex calculation needed for accuracy)
+		radius := float64(g.shape.width / 2) // Assuming width is diameter
+		circleArea := math.Pi * radius * radius
+		if g.bar.vertical {
+			//Approximation, needs proper calculation
+			x := float64(g.bar.position)
+			area1 := calculateCircularSegmentArea(radius, x - float64(g.shape.x) - radius)
+			area2 := circleArea - area1
+			return area1, area2
+		} else {
+			y := float64(g.bar.position)
+			area1 := calculateCircularSegmentArea(radius, y - float64(g.shape.y) - radius)
+			area2 := circleArea - area1
+			return area1, area2
+		}
+
+	case Triangle:
+		// Approximation for triangle (basic split) - needs proper calculation based on bar orientation
+		triangleArea := 0.5 * float64(g.shape.width * g.shape.height)
+		if g.bar.vertical {
+			width1 := g.bar.position - g.shape.x
+			width2 := g.shape.x + g.shape.width - g.bar.position
+			area1 := 0.5 * float64(width1 * g.shape.height) // Approximation
+			area2 := 0.5 * float64(width2 * g.shape.height) // Approximation
+			return area1, area2
+		} else {
+			height1 := g.bar.position - g.shape.y
+			height2 := g.shape.y + g.shape.height - g.bar.position
+			area1 := 0.5 * float64(height1 * g.shape.width) // Approximation
+			area2 := 0.5 * float64(height2 * g.shape.width) // Approximation
+			return area1, area2
+		}
+	default:
+		return 0, 0 // Default case
 	}
+}
+
+// Calculate the area of a circular segment
+func calculateCircularSegmentArea(radius, height float64) float64 {
+	if height > radius || height < -radius {
+		return 0 // Height out of bounds
+	}
+	theta := 2 * math.Acos((radius - height) / radius)
+	area := (radius*radius)/2 * (theta - math.Sin(theta))
+	return area
 }
 
 func main() {
