@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"log"
 	"math"
-	"go-half-slice-game/stages"
 	"math/rand"
 	"os"
 	"time"
@@ -101,7 +100,7 @@ func (g *Game) Init() {
 
 func (g *Game) InitLevel() {
 	// Use stage settings
-	stage := stages.Stages[g.stageIndex%len(stages.Stages)] // Cycle through stages
+	stage := Stages[g.stageIndex%len(Stages)] // Cycle through stages
 	shapeWidth := stage.ShapeWidth
 	shapeHeight := stage.ShapeHeight
 	g.shape = Shape{
