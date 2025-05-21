@@ -153,8 +153,7 @@ func (g *Game) Update() error {
 			g.clickHandled = true
 			// Calculate areas and determine success
 			area1, area2 := g.calculateAreas()
-			diff := math.Abs(area1 - area2)
-			relativeDiff := diff / g.shape.area
+			relativeDiff := math.Abs(area1 / area2 - 1)
 
 			if relativeDiff <= successMargin {
 				// Success!
