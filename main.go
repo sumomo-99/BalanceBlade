@@ -27,6 +27,7 @@ var barSpeed = 2.0 // Make it a float to avoid type issues later
 type Game struct {
 	shape       Shape
 	bar         Bar
+	stageIndex  int
 	score       int
 	rand        *rand.Rand
 	gameState   GameState
@@ -48,7 +49,14 @@ type Shape struct {
 	width  int
 	height int
 	area   float64
+	kind   ShapeKind
 }
+
+type ShapeKind int
+
+const (
+	Rectangle ShapeKind = iota
+)
 
 type Bar struct {
 	position int
@@ -86,33 +94,36 @@ func (g *Game) Init() {
 	g.gameState = GameStatePlaying
 	g.clickHandled = false
 	g.lives = 3 // Initial number of lives
+	g.stageIndex = 0
 	g.InitLevel()
 }
 
 func (g *Game) InitLevel() {
-	// Initialize shape (rectangle)
-	shapeWidth := 100 + g.rand.Intn(150) // Random width between 100 and 250
-	shapeHeight := 100 + g.rand.Intn(150) // Random height between 100 and 250
+	// Use stage settings
+	stage := Stages[g.stageIndex%len(Stages)] // Cycle through stages
+	shapeWidth := stage.ShapeWidth
+	shapeHeight := stage.ShapeHeight
 	g.shape = Shape{
 		x:      screenWidth/2 - shapeWidth/2,
 		y:      screenHeight/2 - shapeHeight/2,
 		width:  shapeWidth,
 		height: shapeHeight,
 		area:   float64(shapeWidth * shapeHeight),
+		kind:   Rectangle, // Currently only rectangle
 	}
 
-	// Determine bar orientation (vertical or horizontal) randomly
-	vertical := g.rand.Float64() < 0.5
 	g.bar = Bar{
-		vertical: vertical,
+		vertical: stage.BarVertical,
 	}
 
 	// Initialize bar position
-	if vertical {
+	if g.bar.vertical {
 		g.bar.position = g.shape.x
 	} else {
 		g.bar.position = g.shape.y
 	}
+
+	barSpeed = stage.BarSpeed
 }
 
 func (g *Game) Update() error {
@@ -168,6 +179,7 @@ func (g *Game) Update() error {
 			}
 		} else {
 			// Automatically proceed to the next stage if lives remain
+			g.stageIndex++
 			g.InitLevel()
 			g.gameState = GameStatePlaying
 		}
