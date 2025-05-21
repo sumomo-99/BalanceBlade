@@ -1,4 +1,4 @@
-package main
+package stages
 
 type Stage struct {
 	ShapeWidth  int

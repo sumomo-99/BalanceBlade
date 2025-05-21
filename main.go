@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"balanceblade/stages"
 	"log"
 	"math"
 	"math/rand"
@@ -100,7 +101,7 @@ func (g *Game) Init() {
 
 func (g *Game) InitLevel() {
 	// Use stage settings
-	stage := Stages[g.stageIndex%len(Stages)] // Cycle through stages
+	stage := stages.Stages[g.stageIndex%len(stages.Stages)] // Cycle through stages
 	shapeWidth := stage.ShapeWidth
 	shapeHeight := stage.ShapeHeight
 	g.shape = Shape{
