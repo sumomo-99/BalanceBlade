@@ -16,24 +16,24 @@ import (
 )
 
 const (
-	screenWidth  = 640
-	screenHeight = 480
+	screenWidth   = 640
+	screenHeight  = 480
 	successMargin = 0.10 // 10% margin for success
-	fontSize = 24
+	fontSize      = 24
 )
 
 var barSpeed = 2.0 // Make it a float to avoid type issues later
 
 type Game struct {
-	shape       Shape
-	bar         Bar
-	stageIndex  int
-	score       int
-	rand        *rand.Rand
-	gameState   GameState
+	shape        Shape
+	bar          Bar
+	stageIndex   int
+	score        int
+	rand         *rand.Rand
+	gameState    GameState
 	clickHandled bool // Flag to prevent multiple clicks in one frame
-	lives       int
-	fontFace *text.GoTextFace
+	lives        int
+	fontFace     *text.GoTextFace
 }
 
 type GameState int
@@ -67,7 +67,7 @@ func (g *Game) Init() {
 	g.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	// Initialize shape (rectangle)
-	shapeWidth := 100 + g.rand.Intn(150) // Random width between 100 and 250
+	shapeWidth := 100 + g.rand.Intn(150)  // Random width between 100 and 250
 	shapeHeight := 100 + g.rand.Intn(150) // Random height between 100 and 250
 	g.shape = Shape{
 		x:      screenWidth/2 - shapeWidth/2,
@@ -209,7 +209,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case GameStatePlaying:
 		stateText += "State: Playing\n"
 	case GameStateResult:
-			stateText += "State: Game Over\nClick to restart"
+		stateText += "State: Game Over\nClick to restart"
 	}
 
 	text.Draw(screen, stateText, g.fontFace, textop)
