@@ -273,7 +273,6 @@ func (g *Game) calculateAreas() (float64, float64) {
 	case Circle:
 		// Approximate circle area division (more complex calculation needed for accuracy)
 		radius := float64(g.shape.width / 2) // Assuming width is diameter
-		radius := float64(g.shape.width / 2) // Assuming width is diameter
 		circleArea := math.Pi * radius * radius
 		if g.bar.vertical {
 			// Calculate the area to the left of the bar
