@@ -157,7 +157,7 @@ func (g *Game) Update() error {
 
 			if relativeDiff <= successMargin {
 				// Success!
-				scoreIncrement := int(math.Round((1 - relativeDiff/successMargin) * 100)) // Higher score for smaller difference
+				scoreIncrement := int(math.Round((1 - relativeDiff) * 100)) // Higher score for smaller difference
 				g.score += scoreIncrement
 				fmt.Printf("Success! Score increment: %d\n", scoreIncrement)
 			} else {
