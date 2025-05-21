@@ -105,13 +105,17 @@ func (g *Game) InitLevel() {
 	stage := Stages[g.stageIndex%len(Stages)] // Cycle through stages
 	shapeWidth := stage.ShapeWidth
 	shapeHeight := stage.ShapeHeight
+
+	// Randomly choose shape kind
+	shapeKind := ShapeKind(g.rand.Intn(3)) // 3 is the number of shape kinds
+
 	g.shape = Shape{
 		x:      screenWidth/2 - shapeWidth/2,
 		y:      screenHeight/2 - shapeHeight/2,
 		width:  shapeWidth,
 		height: shapeHeight,
 		area:   float64(shapeWidth * shapeHeight),
-		kind:   Rectangle,
+		kind:   shapeKind,
 	}
 
 	g.bar = Bar{
