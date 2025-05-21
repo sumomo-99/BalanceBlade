@@ -278,7 +278,6 @@ func (g *Game) calculateAreas() (float64, float64) {
 
 	case Triangle:
 		// Approximation for triangle (basic split) - needs proper calculation based on bar orientation
-		triangleArea := 0.5 * float64(g.shape.width * g.shape.height)
 		if g.bar.vertical {
 			width1 := g.bar.position - g.shape.x
 			width2 := g.shape.x + g.shape.width - g.bar.position
