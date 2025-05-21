@@ -273,16 +273,18 @@ func (g *Game) calculateAreas() (float64, float64) {
 	case Circle:
 		// Approximate circle area division (more complex calculation needed for accuracy)
 		radius := float64(g.shape.width / 2) // Assuming width is diameter
+		radius := float64(g.shape.width / 2) // Assuming width is diameter
 		circleArea := math.Pi * radius * radius
 		if g.bar.vertical {
-			//Approximation, needs proper calculation
-			x := float64(g.bar.position)
-			area1 := calculateCircularSegmentArea(radius, x - float64(g.shape.x) - radius)
+			// Calculate the area to the left of the bar
+			x := float64(g.bar.position) - float64(g.shape.x) - radius
+			area1 := calculateCircularSegmentArea(radius, x)
 			area2 := circleArea - area1
 			return area1, area2
 		} else {
-			y := float64(g.bar.position)
-			area1 := calculateCircularSegmentArea(radius, y - float64(g.shape.y) - radius)
+			// Calculate the area above the bar
+			y := float64(g.bar.position) - float64(g.shape.y) - radius
+			area1 := calculateCircularSegmentArea(radius, y)
 			area2 := circleArea - area1
 			return area1, area2
 		}
@@ -309,11 +311,14 @@ func (g *Game) calculateAreas() (float64, float64) {
 
 // Calculate the area of a circular segment
 func calculateCircularSegmentArea(radius, height float64) float64 {
-	if height > radius || height < -radius {
-		return 0 // Height out of bounds
+	if height >= radius {
+		return math.Pi * radius * radius / 2
 	}
-	theta := 2 * math.Acos((radius - height) / radius)
-	area := (radius*radius)/2 * (theta - math.Sin(theta))
+	if height <= -radius {
+		return -math.Pi * radius * radius / 2
+	}
+	theta := math.Acos(height / radius)
+	area := radius * radius * (theta - math.Sin(theta)*math.Cos(theta))
 	return area
 }
 
