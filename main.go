@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"image/color"
-	"balanceblade/stages"
 	"log"
 	"math"
+	"go-half-slice-game/stages"
 	"math/rand"
 	"os"
 	"time"
